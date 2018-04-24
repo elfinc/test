@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    body {
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
+</head>
+
+<body>
+  <svg width="100%" height="100%" viewbox="-500 -500 1000 1000" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <path d="M-100 0Q0 0 -70.7 -70.7T0 -100T70.7 -70.7T100 0T70.7 70.7T0 100T-70.7 70.7T-100 0" fill="none" stroke="#000" stroke-width="1"
+    />
+    <circle cx="0" cy="0" r="3" style="fill:#000" />
+    <!-- <circle cx="0" cy="0" r="3" style="fill:#000" /> -->
+  </svg>
+  <script>
+
+    var svg = document.getElementsByTagName('svg')[0];
+    var path = document.getElementsByTagNameNS('http://www.w3.org/2000/svg', 'path')[0];
+    var cir = document.getElementsByTagNameNS('http://www.w3.org/2000/svg', 'circle')[0];
+
+    function pd(time) {
+      var size = 200;
+      var t = time / 50;
+      var d = 'M' + cos((90) * d2r) * size * sin(t) + ' ' + sin((90) * d2r) * size * cos(t);
+      var len = 180;
+      var deg = 360 / len;
+      for (var i = 0; i < len; i++) {
+        var d0 = (i * deg + 90) * d2r;
+        var d1 = ((i + 1) * deg + 90) * d2r;
+        var o = ox(d0, d1);
+        o.x *= cos(t);
+        o.y *= sin(t);
+        var sc = size;
+        d += 'Q' + o.x * sc + ' ' + o.y * sc + ' ' + cos(d1) * size * sin(t) + ' ' + sin(d1) * size * cos(t);
+      }
+      path.setAttribute('d', d);
+      cir.setAttribute('r', sin(sin(t) * cos(t)) * cos(cos(t) * sin(t)) * size / 5 + size / 10);
+    }
+
+    var sin = Math.sin;
+    var cos = Math.cos;
+    var pi = Math.PI;
+    var p2 = pi * 2;
+    var d2r = pi / 180;
+    var r2d = 180 / pi;
+    var abs = Math.abs;
+    var pow = Math.pow;
+    var log = Math.log;
+
+    function ox(a, b) {
+      var x = (sin(b) - sin(a)) / (cos(a) * sin(b) - sin(a) * cos(b));
+      var c = (a % pi + pi) % pi > (b % pi + pi) % pi ? a : b;
+      var y = (1 - cos(c) * x) / sin(c);
+      return { x, y };
+    }
+
+    window.onpointermove = (e) => {
+      pd();
+    }
+    window.ontouchmove = (e) => {
+      window.onpointermove(e.touches[0]);
+    }
+
+    requestAnimationFrame((function () {
+      var time = Date.now();
+      return function loop() {
+        var time2 = Date.now();
+        Tick(time2 - time);
+        time = time2;
+        requestAnimationFrame(loop);
+      }
+    })());
+
+    var time = 1;
+    function Tick(tick) {
+      pd(time++);
+    }
+
+  </script>
+</body>
+
+</html>
