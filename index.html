@@ -122,7 +122,7 @@
     var zx = 0;
     window.onmousemove = (e) => {
       pDef(e);
-      m = 1 - (e.clientY - 300) / (innerHeight - 600);
+      m = 1 - (e.clientY - innerHeight / 3) / (innerHeight - innerHeight / 1.5);
       mx = (e.clientX * 2) / innerWidth - 1;
       zx = tw(mx, zx, .02);
     }
@@ -140,6 +140,7 @@
       pDef(e);
       boom = hypot2(innerHeight, innerWidth) * random;
       rk();
+      (innerWidth < 768) && window.onmousemove(e);
     }
     window.onpointerdown = (e) => {
       pDef(e);
@@ -219,7 +220,7 @@
       console[['log', 'warn', 'error'][random(3, parseInt)]](o0o0());
       window.onmousemove({
         clientX: random(innerWidth),
-        clientY: random(innerHeight / 8) + (m > .5 ? 1 : -1) * innerHeight / 8
+        clientY: random(innerHeight / 4) + (m > .5 ? 0 : innerHeight / 2)
       });
       rm[random(3, parseInt)] = 1 / (1 + pow(E, tan(random * pi - pi / 2)));
       var r24 = 24 * random;
