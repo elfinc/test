@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
+  <title></title>
   <style>
     body {
       position: absolute;
@@ -207,22 +207,27 @@
       random(true, .01) && rk();
       rs = rs.map((v, i) => tw(rm[i], v, .01));
       var msk = rs.toString().split(random(10, parseInt)).reduce((a, b) =>
-        a += (random(true) ? '🌝' : '🌚') + b
+        a += o0o0() + b
       );
       text.textContent = msk;
+      document.title = o0o0();
       time++;
       draw();
     }
 
     function rk() {
-      console[['log', 'warn', 'error'][random(3, parseInt)]](random(true) ? '🌝' : '🌚');
+      console[['log', 'warn', 'error'][random(3, parseInt)]](o0o0());
       window.onmousemove({
         clientX: random(innerWidth),
-        clientY: random(innerHeight / 2) + (m < .5 ? 1 : -1) * innerHeight / 2 + random(size)
+        clientY: random(innerHeight / 8) + (m > .5 ? 1 : -1) * innerHeight / 8
       });
       rm[random(3, parseInt)] = 1 / (1 + pow(E, tan(random * pi - pi / 2)));
       var r24 = 24 * random;
       random(true, .3) && (steps = fillArr(12 * random + 1, () => r24 + random));
+    }
+
+    function o0o0() {
+      return ['🌝', '🌚', '🌕', '🌑'][random(4, parseInt)];
     }
 
 
