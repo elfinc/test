@@ -19,7 +19,8 @@
 
 <body>
   <svg width="100%" height="100%" viewbox="-500 -500 1000 1000" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <circle cx="0" cy="0" r="3" style="fill:#000" />
+    <circle cx="0" cy="0" r="3" stroke="#000" />
+    <text x="0" y="0" style="text-anchor: middle; dominant-baseline: middle; user-select: none;">🌕</text>
   </svg>
   <script>
 
@@ -36,12 +37,28 @@
     var log = Math.log;
     var max = Math.max;
     var min = Math.min;
+    var miax = (v, mi, ma) => min(max(v, mi), ma);
     var E = Math.E;
     var MAX = Number.MAX_SAFE_INTEGER;
     var MIN = Number.MIN_SAFE_INTEGER;
+    var sqrt = Math.sqrt;
+    var hypot2 = Math.hypot || ((a, b) => sqrt(a * a + b * b));
     var clog = console.log;
+    var cwarn = console.warn;
+    var cerror = console.error;
+    var fillArr = (len, val) => Array.apply(null, Array(parseInt(len))).map(() => typeof val == 'function' ? val() : val);
     var random = (() => {
-      var r = (max = 1, min = 0) => Math.random() * (max - min) + min;
+      var r = (max, min, f) => {
+        var ma = max == null ? 1 : max;
+        var mi = (typeof min == 'number') ? min : 0;
+        var r = Math.random();
+        r = (typeof max == 'number') ? r * (ma - mi) + mi :
+          (typeof max == 'boolean') ? r < (mi || .5) :
+            Math.random();
+        f = f || min || max;
+        r = (typeof f == 'function') ? f(r) : r;
+        return r;
+      }
       r.valueOf = () => Math.random();
       return r;
     })();
@@ -49,6 +66,7 @@
     var svg = document.getElementsByTagName('svg')[0];
     var path = document.getElementsByTagNameNS('http://www.w3.org/2000/svg', 'path')[0];
     var cir = document.getElementsByTagNameNS('http://www.w3.org/2000/svg', 'circle')[0];
+    var text = document.getElementsByTagNameNS('http://www.w3.org/2000/svg', 'text')[0];
     var createSvg = (n) => document.createElementNS('http://www.w3.org/2000/svg', n);
 
     var ps = [];
@@ -56,91 +74,122 @@
     var size = 100;
     var asize = innerHeight / size;
     var hscale = 2;
-    var rs = [random < .5, random < .5, random < .5];
+    var rs = [0, 0, 0];
+    var rm = [+random, +random, +random];
+    var steps = fillArr(12 * random + 1, 24 * random);
     function pd(t, l) {
       var iz = z * 2 - 1;
       if (iz < .000001 && iz > -.000001) iz = .000001;
       var iw = -pi * iz, aw = -iw;
       var ih = 1 / E, ah = E;
-      var step = 12;
+      var step = steps[l * steps.length >> 0]
+      if (!step) return '';
       var d = '';
-      d += 'M';
-      for (var i = -step * 2; i <= step * 3; i++) {
+      var sl = step * 3 + (boom % 6);
+      for (var i = -step * 2 - (boom % 6); i <= sl; i++) {
         var phs = i / step * pow(t, l);
-        var r1 = rs[0] ? 1 : sin(t * l);
-        var r2 = rs[1] ? 1 : cos(t * t - l) * 2 + 3;
-        var r3 = rs[2] ? 1 : (sin(t / 12 * (l * l * 6 + 2) + pi * phs * 12 * (l * .5 + .5)) + 1) / 16;
-        var len = E / 10 * (1 - l * l) * r1 * r2 * r3;
-        phs = (aw - iw) * phs + iw;
-        len = (ah - ih) * len + ih;
+        var r1 = tw(1, sin(t * l), pow(rs[0], rs[1] * rs[2] + 1));
+        var r2 = tw(1, cos(1 / l) + 1, pow(rs[1], rs[2] * rs[0] + 1));
+        var r3 = tw(1, (sin(t / 12 * (l * l * 6 + 2) + pi * phs * 12 * (l * .5 + .5)) + 1) / 16, pow(rs[2], rs[0] * rs[1] + 1));
+        var r4 = tw(1, 1 / phs, 1 / boom);
+        var len = E / 10 * (1 - l * l) * r1 * r2 * r3 * r4;
+        phs = tw(aw, iw, phs);
+        len = tw(ah, ih, len);
         var lol = log(len);
         var nx = sin(phs);
         var ny = cos(phs);
         nx = nx * lol + nx / iz;
         ny = -ny * lol - (ny - 1) / iz - iz;
-        nx *= size * (1 + asize - z * asize);
-        ny *= size * (1 + asize - z * asize);
-        d += d[d.length - 1] == 'M' ? '' : 'L';
-        d += nx + ' ' + ny;
+        nx *= size;// * (1 + asize - z * asize);
+        ny *= size;// * (1 + asize - z * asize);
+        d += 'L' + (nx + zx * innerWidth / 3) + ' ' + ny;
       }
+      var x = 0;
+      var y = (1 / iz - iz) * size;
+      d = d.split('LNaN').join('L' + x).split('LInfinity').join('L' + x);
+      d = d.split(' NaN').join(' ' + y).split(' Infinity').join(' ' + y);
+      d = 'M' + d.slice(1);
       return d;
     }
 
-    function ox(a, b) {
-      var x = (sin(b) - sin(a)) / (cos(a) * sin(b) - sin(a) * cos(b));
-      var c = (a % pi + pi) % pi > (b % pi + pi) % pi ? a : b;
-      var y = (1 - cos(c) * x) / sin(c);
-      return { x, y };
+    function tw(a, b, t) {
+      return (a - b) * t + b;
     }
 
-    var m = 1;
-    var z = 1;
+    var m = 1.618;
+    var z = .618;
     var mx = 0;
     var zx = 0;
-    window.onpointermove = (e) => {
-      m = 1 - max(min((e.clientY - 200) / (innerHeight - 400), 1), 0);
+    window.onmousemove = (e) => {
+      pDef(e);
+      m = 1 - (e.clientY - 300) / (innerHeight - 600);
       mx = (e.clientX * 2) / innerWidth - 1;
+      zx = tw(mx, zx, .02);
+    }
+    window.onpointermove = (e) => {
+      pDef(e);
+      window.onmousemove(e);
     }
     window.ontouchmove = (e) => {
+      pDef(e);
       window.onpointermove(e.touches[0]);
     }
 
+    var boom = hypot2(innerHeight, innerWidth);
+    window.onmousedown = (e) => {
+      pDef(e);
+      boom = hypot2(innerHeight, innerWidth) * random;
+      rk();
+    }
     window.onpointerdown = (e) => {
-      rs = [random < .5, random < .5, random < .5];
-      var v = (rs[1] << 0) + (rs[1] << 1) + (rs[2] << 2);
+      pDef(e);
+      window.onmousedown(e);
     }
     window.ontouchstart = (e) => {
-      window.onmspointerdown(e.touches[0]);
+      pDef(e);
+      window.onpointerdown(e.touches[0]);
     }
 
+    function pDef(e) {
+      (typeof e.preventDefault == 'function') && e.preventDefault();
+    }
+
+    var rous = 6;
     function draw() {
 
-      for (var i = 0; i <= 6; i++) {
+      for (var i = 0; i < rous; i++) {
         if (!ps[i]) {
           ps[i] = createSvg('path');
+          ps[i].setAttribute('fill', 'none');
+          ps[i].setAttribute('stroke', '#000');
           svg.appendChild(ps[i]);
+          svg.appendChild(cir);
+          svg.appendChild(text);
         }
-        var tw = min(max(i / 6, 0), 1);
+        var tw = miax(i / rous, 0, 1);
         var l = tw;
         var d = pd(time / 3, l);
         var path = ps[i];
         path.id = 'p-' + i;
         path.setAttribute('d', d);
-        path.setAttribute('fill', 'none');
-        path.setAttribute('stroke', 'rgba(0,0,0,1)');
       }
 
       var iz = z * 2 - 1;
-      cir.setAttribute('cy', (1 / iz - iz) * size * (1 + asize - z * asize) + random(1, -1) * random * (pow(sin(time), cos(time) * 10) * 5) || 1);
-      cir.setAttribute('cx', random(1, -1) * random * pow(sin(time), cos(time) * 10) * 5);
-      cir.setAttribute('r', pow(cos(time), sin(time) * (1 + zx * 2)) * random + 3);
+      var pw = pow(sin(time), cos(time) * 10) * 5 || 1;
+      cir.setAttribute('cy', (1 / iz - iz) * size + random(1, -1) * random * pw);
+      cir.setAttribute('cx', random(1, -1) * random * pw + zx * innerWidth / 3);
+      var pw2 = pow(cos(time), sin(time / 10) * (6 + zx * 12 * log(boom + 1))) || 1;
+      cir.setAttribute('r', pw2 * random + 3);
+      cir.setAttribute('fill', random(true) ? 'none' : '#000');
+      cir.setAttribute('stroke-width', sin(time / 100) * 10);
     }
 
     requestAnimationFrame((function () {
       var time = Date.now();
       return function loop() {
         var time2 = Date.now();
-        Tick(time2 - time);
+        var ago = time2 - time;
+        Tick(ago);
         time = time2;
         requestAnimationFrame(loop);
       }
@@ -148,11 +197,34 @@
 
     var time = 1;
     function Tick(tick) {
-      z = (m - z) * .1 + z;
-      zx = (mx - zx) * .1 + zx;
+      if (document.body.childElementCount > 1) {
+        document.body.innerHTML = '';
+        document.body.appendChild(svg);
+      }
+      boom = tw(1, boom, .3);
+      z = tw(m, z, .1);
+      zx = tw(0, zx, .1);
+      random(true, .01) && rk();
+      rs = rs.map((v, i) => tw(rm[i], v, .01));
+      var msk = rs.toString().split(random(10, parseInt)).reduce((a, b) =>
+        a += (random(true) ? '🌝' : '🌚') + b
+      );
+      text.textContent = msk;
       time++;
       draw();
     }
+
+    function rk() {
+      console[['log', 'warn', 'error'][random(3, parseInt)]](random(true) ? '🌝' : '🌚');
+      window.onmousemove({
+        clientX: random(innerWidth),
+        clientY: random(innerHeight / 2) + (m < .5 ? 1 : -1) * innerHeight / 2 + random(size)
+      });
+      rm[random(3, parseInt)] = 1 / (1 + pow(E, tan(random * pi - pi / 2)));
+      var r24 = 24 * random;
+      random(true, .3) && (steps = fillArr(12 * random + 1, () => r24 + random));
+    }
+
 
   </script>
 </body>
