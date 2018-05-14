@@ -18,8 +18,9 @@
 </head>
 
 <body>
-  <svg width="100%" height="100%" viewbox="-500 -500 1000 1000" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <circle cx="0" cy="0" r="3" stroke="#000" />
+  <svg width="100%" height="100%" style="color: #000;transition: all .2s;" viewbox="-500 -500 1000 1000" version="1.1" xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+    <circle cx="0" cy="0" r="3" stroke="currentColor" />
     <text x="0" y="0" style="text-anchor: middle; dominant-baseline: middle; user-select: none;">🌕</text>
   </svg>
   <script>
@@ -89,6 +90,7 @@
         var c = { x: 0, y: 0, r: 0 };
         var sl = step * 3 + (boom % 6);
         var pp = -t / 2 % step / 2 >> 0;
+        var ll = (lig - .5) * 2 + 1.2;
         var x = zx * innerWidth / 3;
         var y = (1 / iz - iz) * size;
         for (var i = -step * 2 - (boom % 6); i <= sl; i++) {
@@ -97,7 +99,8 @@
           var r2 = tw(1, cos(1 / l) + 1, pow(rs[1], rs[2] * rs[0] + 1));
           var r3 = tw(1, (sin(t / 12 * (l * l * 6 + 2) + pi * phs * 12 * (l * .5 + .5)) + 1) / 16, pow(rs[2], rs[0] * rs[1] + 1));
           var r4 = tw(1, 1 / phs, 1 / boom);
-          var len = E / 10 * (1 - l * l) * r1 * r2 * r3 * r4;
+          var r5 = tw((sin(t / phs / sl) + 1) * ll, 1, (cos(phs) * .5 + 1) * miax(1 - z, 0, 1));
+          var len = E / 10 * (1 - l * l) * r1 * r2 * r3 * r4 * r5;
           phs = tw(aw, iw, phs);
           len = tw(ah, ih, len);
           var lol = log(len);
@@ -117,7 +120,6 @@
             c.x = isFinite(c.x) ? c.x : x;
             c.y = isFinite(c.y) ? c.y : y;
             c.r = sqrt(abs((nx - x) / size * (ny - y) / size));
-            // c.r *= c.r;
             c.r *= 12;
           }
         }
@@ -175,8 +177,7 @@
           if (!ps[i]) {
             ps[i] = createSvg('path');
             ps[i].setAttribute('fill', 'none');
-            ps[i].setAttribute('stroke', '#000');
-            ps[i].setAttribute('stroke-width', 1 - i / rous);
+            ps[i].setAttribute('stroke', 'currentColor');
             ps[i].setAttribute('stroke-linecap', 'round');
             ps[i].setAttribute('stroke-linejoin', 'round');
 
@@ -186,21 +187,23 @@
 
             cs[i] = createSvg('circle');
             cs[i].setAttribute('fill', 'none');
-            cs[i].setAttribute('stroke', '#000');
-            cs[i].setAttribute('stroke-width', 1.2 - i / rous);
+            cs[i].setAttribute('stroke', 'currentColor');
             svg.appendChild(cs[i]);
           }
+          var ll = (lig - .5) * 2 + 1;
           var tw = miax(i / rous, 0, 1);
           var l = tw;
           var d = pd(time / 3, l);
           var path = ps[i];
           path.id = 'p-' + i;
           path.setAttribute('d', d.d);
+          path.setAttribute('stroke-width', max((1 - i / rous) - ll / rous, .0001));
 
           var cc = cs[i];
           cc.setAttribute('cx', d.c.x);
           cc.setAttribute('cy', d.c.y);
           cc.setAttribute('r', d.c.r);
+          cc.setAttribute('stroke-width', 1.2 - i / rous + ll * ll);
         }
 
         var iz = z * 2 - 1;
@@ -209,7 +212,7 @@
         cir.setAttribute('cx', random(1, -1) * random * pw + zx * innerWidth / 3);
         var pw2 = pow(cos(time), sin(time / 10) * (6 + zx * 12 * log(boom + 1))) || 1;
         cir.setAttribute('r', pw2 * random + 3);
-        cir.setAttribute('fill', random(true) ? 'none' : '#000');
+        cir.setAttribute('fill', random(true) ? 'none' : 'currentColor');
         cir.setAttribute('stroke-width', sin(time / 100) * 10);
       }
 
@@ -228,7 +231,7 @@
       var lct = window.location;
       var time = 1;
       function Tick(tick) {
-        ddd.body || (lct.href = lct.href);
+        ddd.body || lct.reload(true);
         if (bbb.childElementCount !== 1 || bbb.firstElementChild !== svg) {
           bbb.innerHTML = '';
           bbb.appendChild(svg);
@@ -242,25 +245,38 @@
           a += o0o0() + b
         );
         text.textContent = msk;
-        ddd.title = o0o0();
+        ddd.title = o0o0(1);
         time++;
         draw();
       }
 
+      var lig = .4;
       function rk() {
-        console[['log', 'warn', 'error'][random(3, parseInt)]](o0o0());
+        var d = 0;
+        if (random(true, pow(lig, 1 / lig))) {
+          lig = 1 - lig;
+          var c = lig < .5;
+          svg.style.background = c ? '#fff' : '#000';
+          svg.style.color = !c ? '#fff' : '#000';
+          o0 = c ? ['🌝', '🌕'] : ['🌚', '🌑'];
+          boom = hypot2(innerHeight, innerWidth) * random;
+          d += .3;
+        }
+        console[['log', 'warn', 'error'][random(3, parseInt)]](o0o0(1));
         window.onmousemove({
           clientX: random(innerWidth),
           clientY: random(innerHeight / 4) + (m > .5 ? 0 : innerHeight / 2)
         });
         rm[random(3, parseInt)] = 1 / (1 + pow(E, tan(random * pi - pi / 2)));
         var r24 = 24 * random;
-        random(true, .3) && (steps = fillArr(12 * random + 1, () => r24 + random));
-        random(true, 1 / rous) && rous++;
+        random(true, .3 + d) && (steps = fillArr(12 * random + 1, () => r24 + random));
+        random(true, 1 / rous) && rous++ && random(true, .01) && lct.reload(true);
       }
 
-      function o0o0() {
-        return ['🌝', '🌚', '🌕', '🌑'][random(4, parseInt)];
+      var o0 = ['🌝', '🌕'];
+      function o0o0(o) {
+        if (o) return o0[random(2, parseInt)];
+        else return ['🌝', '🌕', '🌚', '🌑'][random(4, parseInt)]
       }
 
     })()
