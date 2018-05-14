@@ -23,215 +23,247 @@
     <text x="0" y="0" style="text-anchor: middle; dominant-baseline: middle; user-select: none;">🌕</text>
   </svg>
   <script>
+    (f => {
 
-    var sin = Math.sin;
-    var cos = Math.cos;
-    var tan = Math.tan;
-    var pi = Math.PI;
-    var p2 = pi * 2;
-    var p_2 = pi / 2;
-    var d2r = pi / 180;
-    var r2d = 180 / pi;
-    var abs = Math.abs;
-    var pow = Math.pow;
-    var log = Math.log;
-    var max = Math.max;
-    var min = Math.min;
-    var miax = (v, mi, ma) => min(max(v, mi), ma);
-    var E = Math.E;
-    var MAX = Number.MAX_SAFE_INTEGER;
-    var MIN = Number.MIN_SAFE_INTEGER;
-    var sqrt = Math.sqrt;
-    var hypot2 = Math.hypot || ((a, b) => sqrt(a * a + b * b));
-    var clog = console.log;
-    var cwarn = console.warn;
-    var cerror = console.error;
-    var fillArr = (len, val) => Array.apply(null, Array(parseInt(len))).map(() => typeof val == 'function' ? val() : val);
-    var random = (() => {
-      var r = (max, min, f) => {
-        var ma = max == null ? 1 : max;
-        var mi = (typeof min == 'number') ? min : 0;
-        var r = Math.random();
-        r = (typeof max == 'number') ? r * (ma - mi) + mi :
-          (typeof max == 'boolean') ? r < (mi || .5) :
-            Math.random();
-        f = f || min || max;
-        r = (typeof f == 'function') ? f(r) : r;
-        return r;
-      }
-      r.valueOf = () => Math.random();
-      return r;
-    })();
-
-    var svg = document.getElementsByTagName('svg')[0];
-    var path = document.getElementsByTagNameNS('http://www.w3.org/2000/svg', 'path')[0];
-    var cir = document.getElementsByTagNameNS('http://www.w3.org/2000/svg', 'circle')[0];
-    var text = document.getElementsByTagNameNS('http://www.w3.org/2000/svg', 'text')[0];
-    var createSvg = (n) => document.createElementNS('http://www.w3.org/2000/svg', n);
-
-    var ps = [];
-    var ts = [];
-    var size = 100;
-    var asize = innerHeight / size;
-    var hscale = 2;
-    var rs = [0, 0, 0];
-    var rm = [+random, +random, +random];
-    var steps = fillArr(12 * random + 1, 24 * random);
-    function pd(t, l) {
-      var iz = z * 2 - 1;
-      if (iz < .000001 && iz > -.000001) iz = .000001;
-      var iw = -pi * iz, aw = -iw;
-      var ih = 1 / E, ah = E;
-      var step = steps[l * steps.length >> 0]
-      if (!step) return '';
-      var d = '';
-      var sl = step * 3 + (boom % 6);
-      for (var i = -step * 2 - (boom % 6); i <= sl; i++) {
-        var phs = i / step * pow(t, l);
-        var r1 = tw(1, sin(t * l), pow(rs[0], rs[1] * rs[2] + 1));
-        var r2 = tw(1, cos(1 / l) + 1, pow(rs[1], rs[2] * rs[0] + 1));
-        var r3 = tw(1, (sin(t / 12 * (l * l * 6 + 2) + pi * phs * 12 * (l * .5 + .5)) + 1) / 16, pow(rs[2], rs[0] * rs[1] + 1));
-        var r4 = tw(1, 1 / phs, 1 / boom);
-        var len = E / 10 * (1 - l * l) * r1 * r2 * r3 * r4;
-        phs = tw(aw, iw, phs);
-        len = tw(ah, ih, len);
-        var lol = log(len);
-        var nx = sin(phs);
-        var ny = cos(phs);
-        nx = nx * lol + nx / iz;
-        ny = -ny * lol - (ny - 1) / iz - iz;
-        nx *= size;// * (1 + asize - z * asize);
-        ny *= size;// * (1 + asize - z * asize);
-        d += 'L' + (nx + zx * innerWidth / 3) + ' ' + ny;
-      }
-      var x = 0;
-      var y = (1 / iz - iz) * size;
-      d = d.split('LNaN').join('L' + x).split('LInfinity').join('L' + x);
-      d = d.split(' NaN').join(' ' + y).split(' Infinity').join(' ' + y);
-      d = 'M' + d.slice(1);
-      return d;
-    }
-
-    function tw(a, b, t) {
-      return (a - b) * t + b;
-    }
-
-    var m = 1.618;
-    var z = .618;
-    var mx = 0;
-    var zx = 0;
-    window.onmousemove = (e) => {
-      pDef(e);
-      m = 1 - (e.clientY - innerHeight / 3) / (innerHeight - innerHeight / 1.5);
-      mx = (e.clientX * 2) / innerWidth - 1;
-      zx = tw(mx, zx, .02);
-    }
-    window.onpointermove = (e) => {
-      pDef(e);
-      window.onmousemove(e);
-    }
-    window.ontouchmove = (e) => {
-      pDef(e);
-      window.onpointermove(e.touches[0]);
-    }
-
-    var boom = hypot2(innerHeight, innerWidth);
-    window.onmousedown = (e) => {
-      pDef(e);
-      boom = hypot2(innerHeight, innerWidth) * random;
-      rk();
-      (innerWidth < 768) && window.onmousemove(e);
-    }
-    window.onpointerdown = (e) => {
-      pDef(e);
-      window.onmousedown(e);
-    }
-    window.ontouchstart = (e) => {
-      pDef(e);
-      window.onpointerdown(e.touches[0]);
-    }
-
-    function pDef(e) {
-      (typeof e.preventDefault == 'function') && e.preventDefault();
-    }
-
-    var rous = 6;
-    function draw() {
-
-      for (var i = 0; i < rous; i++) {
-        if (!ps[i]) {
-          ps[i] = createSvg('path');
-          ps[i].setAttribute('fill', 'none');
-          ps[i].setAttribute('stroke', '#000');
-          svg.appendChild(ps[i]);
-          svg.appendChild(cir);
-          svg.appendChild(text);
+      var ddd = document;
+      var sin = Math.sin;
+      var cos = Math.cos;
+      var tan = Math.tan;
+      var pi = Math.PI;
+      var p2 = pi * 2;
+      var p_2 = pi / 2;
+      var d2r = pi / 180;
+      var r2d = 180 / pi;
+      var abs = Math.abs;
+      var pow = Math.pow;
+      var log = Math.log;
+      var max = Math.max;
+      var min = Math.min;
+      var miax = (v, mi, ma) => min(max(v, mi), ma);
+      var E = Math.E;
+      var MAX = Number.MAX_SAFE_INTEGER;
+      var MIN = Number.MIN_SAFE_INTEGER;
+      var sqrt = Math.sqrt;
+      var hypot2 = Math.hypot || ((a, b) => sqrt(a * a + b * b));
+      var clog = console.log;
+      var cwarn = console.warn;
+      var cerror = console.error;
+      var fillArr = (len, val) => Array.apply(null, Array(parseInt(len))).map(() => typeof val == 'function' ? val() : val);
+      var random = (() => {
+        var r = (max, min, f) => {
+          var ma = max == null ? 1 : max;
+          var mi = (typeof min == 'number') ? min : 0;
+          var r = Math.random();
+          r = (typeof max == 'number') ? r * (ma - mi) + mi :
+            (typeof max == 'boolean') ? r < (mi || .5) :
+              Math.random();
+          f = f || min || max;
+          r = (typeof f == 'function') ? f(r) : r;
+          return r;
         }
-        var tw = miax(i / rous, 0, 1);
-        var l = tw;
-        var d = pd(time / 3, l);
-        var path = ps[i];
-        path.id = 'p-' + i;
-        path.setAttribute('d', d);
+        r.valueOf = () => Math.random();
+        return r;
+      })();
+
+      var svg = ddd.getElementsByTagName('svg')[0];
+      var cir = ddd.getElementsByTagNameNS('http://www.w3.org/2000/svg', 'circle')[0];
+      var text = ddd.getElementsByTagNameNS('http://www.w3.org/2000/svg', 'text')[0];
+      var createSvg = (n) => ddd.createElementNS('http://www.w3.org/2000/svg', n);
+
+      var ps = {};
+      var cs = {};
+      var size = 100;
+      var asize = innerHeight / size;
+      var hscale = 2;
+      var rs = [0, 0, 0];
+      var rm = [+random, +random, +random];
+      var steps = fillArr(12 * random + 1, 24 * random);
+      function pd(t, l) {
+        var iz = z * 2 - 1;
+        if (iz < .000001 && iz > -.000001) iz = .000001;
+        var iw = -pi * iz, aw = -iw;
+        var ih = 1 / E, ah = E;
+        var step = steps[l * steps.length >> 0]
+        if (!step) return '';
+        var d = '';
+        var c = { x: 0, y: 0, r: 0 };
+        var sl = step * 3 + (boom % 6);
+        var pp = -t / 2 % step / 2 >> 0;
+        var x = zx * innerWidth / 3;
+        var y = (1 / iz - iz) * size;
+        for (var i = -step * 2 - (boom % 6); i <= sl; i++) {
+          var phs = i / step * pow(t, l);
+          var r1 = tw(1, sin(t * l), pow(rs[0], rs[1] * rs[2] + 1));
+          var r2 = tw(1, cos(1 / l) + 1, pow(rs[1], rs[2] * rs[0] + 1));
+          var r3 = tw(1, (sin(t / 12 * (l * l * 6 + 2) + pi * phs * 12 * (l * .5 + .5)) + 1) / 16, pow(rs[2], rs[0] * rs[1] + 1));
+          var r4 = tw(1, 1 / phs, 1 / boom);
+          var len = E / 10 * (1 - l * l) * r1 * r2 * r3 * r4;
+          phs = tw(aw, iw, phs);
+          len = tw(ah, ih, len);
+          var lol = log(len);
+          var nx = sin(phs);
+          var ny = cos(phs);
+          nx = nx * lol + nx / iz;
+          ny = -ny * lol - (ny - 1) / iz - iz;
+          nx *= size;// * (1 + asize - z * asize);
+          ny *= size;// * (1 + asize - z * asize);
+          nx = (nx + zx * innerWidth / 3);
+          nx = isFinite(nx) ? nx : x;
+          ny = isFinite(ny) ? ny : y;
+          d += 'L' + nx + ' ' + ny;
+          if (i >> 0 == pp) {
+            c.x = -(nx - x) * r2 * pp + x;
+            c.y = -(ny - y) * r2 * pp + y;
+            c.x = isFinite(c.x) ? c.x : x;
+            c.y = isFinite(c.y) ? c.y : y;
+            c.r = sqrt(abs((nx - x) / size * (ny - y) / size));
+            // c.r *= c.r;
+            c.r *= 12;
+          }
+        }
+        d = 'M' + d.slice(1);
+        return { d, c };
       }
 
-      var iz = z * 2 - 1;
-      var pw = pow(sin(time), cos(time) * 10) * 5 || 1;
-      cir.setAttribute('cy', (1 / iz - iz) * size + random(1, -1) * random * pw);
-      cir.setAttribute('cx', random(1, -1) * random * pw + zx * innerWidth / 3);
-      var pw2 = pow(cos(time), sin(time / 10) * (6 + zx * 12 * log(boom + 1))) || 1;
-      cir.setAttribute('r', pw2 * random + 3);
-      cir.setAttribute('fill', random(true) ? 'none' : '#000');
-      cir.setAttribute('stroke-width', sin(time / 100) * 10);
-    }
-
-    requestAnimationFrame((function () {
-      var time = Date.now();
-      return function loop() {
-        var time2 = Date.now();
-        var ago = time2 - time;
-        Tick(ago);
-        time = time2;
-        requestAnimationFrame(loop);
+      function tw(a, b, t) {
+        return (a - b) * t + b;
       }
-    })());
 
-    var time = 1;
-    function Tick(tick) {
-      if (document.body.childElementCount > 1) {
-        document.body.innerHTML = '';
-        document.body.appendChild(svg);
+      var m = 1.618;
+      var z = .618;
+      var mx = 0;
+      var zx = 0;
+      window.onmousemove = (e) => {
+        pDef(e);
+        m = 1 - (e.clientY - innerHeight / 3) / (innerHeight - innerHeight / 1.5);
+        mx = (e.clientX * 2) / innerWidth - 1;
+        zx = tw(mx, zx, .02);
       }
-      boom = tw(1, boom, .3);
-      z = tw(m, z, .1);
-      zx = tw(0, zx, .1);
-      random(true, .01) && rk();
-      rs = rs.map((v, i) => tw(rm[i], v, .01));
-      var msk = rs.toString().split(random(10, parseInt)).reduce((a, b) =>
-        a += o0o0() + b
-      );
-      text.textContent = msk;
-      document.title = o0o0();
-      time++;
-      draw();
-    }
+      window.onpointermove = (e) => {
+        pDef(e);
+        window.onmousemove(e);
+      }
+      window.ontouchmove = (e) => {
+        pDef(e);
+        window.onpointermove(e.touches[0]);
+      }
 
-    function rk() {
-      console[['log', 'warn', 'error'][random(3, parseInt)]](o0o0());
-      window.onmousemove({
-        clientX: random(innerWidth),
-        clientY: random(innerHeight / 4) + (m > .5 ? 0 : innerHeight / 2)
-      });
-      rm[random(3, parseInt)] = 1 / (1 + pow(E, tan(random * pi - pi / 2)));
-      var r24 = 24 * random;
-      random(true, .3) && (steps = fillArr(12 * random + 1, () => r24 + random));
-    }
+      var boom = hypot2(innerHeight, innerWidth);
+      window.onmousedown = (e) => {
+        pDef(e);
+        boom = hypot2(innerHeight, innerWidth) * random;
+        rk();
+        (innerWidth < 768) && window.onmousemove(e);
+      }
+      window.onpointerdown = (e) => {
+        pDef(e);
+        window.onmousedown(e);
+      }
+      window.ontouchstart = (e) => {
+        pDef(e);
+        window.onpointerdown(e.touches[0]);
+      }
 
-    function o0o0() {
-      return ['🌝', '🌚', '🌕', '🌑'][random(4, parseInt)];
-    }
+      function pDef(e) {
+        (typeof e.preventDefault == 'function') && e.preventDefault();
+      }
 
+      var rous = 4 + random(4, parseInt);
+      function draw() {
 
+        for (var i = 0; i < rous; i++) {
+          if (!ps[i]) {
+            ps[i] = createSvg('path');
+            ps[i].setAttribute('fill', 'none');
+            ps[i].setAttribute('stroke', '#000');
+            ps[i].setAttribute('stroke-width', 1 - i / rous);
+            ps[i].setAttribute('stroke-linecap', 'round');
+            ps[i].setAttribute('stroke-linejoin', 'round');
+
+            svg.appendChild(ps[i]);
+            svg.appendChild(cir);
+            svg.appendChild(text);
+
+            cs[i] = createSvg('circle');
+            cs[i].setAttribute('fill', 'none');
+            cs[i].setAttribute('stroke', '#000');
+            cs[i].setAttribute('stroke-width', 1.2 - i / rous);
+            svg.appendChild(cs[i]);
+          }
+          var tw = miax(i / rous, 0, 1);
+          var l = tw;
+          var d = pd(time / 3, l);
+          var path = ps[i];
+          path.id = 'p-' + i;
+          path.setAttribute('d', d.d);
+
+          var cc = cs[i];
+          cc.setAttribute('cx', d.c.x);
+          cc.setAttribute('cy', d.c.y);
+          cc.setAttribute('r', d.c.r);
+        }
+
+        var iz = z * 2 - 1;
+        var pw = pow(sin(time), cos(time) * 10) * 5 || 1;
+        cir.setAttribute('cy', (1 / iz - iz) * size + random(1, -1) * random * pw);
+        cir.setAttribute('cx', random(1, -1) * random * pw + zx * innerWidth / 3);
+        var pw2 = pow(cos(time), sin(time / 10) * (6 + zx * 12 * log(boom + 1))) || 1;
+        cir.setAttribute('r', pw2 * random + 3);
+        cir.setAttribute('fill', random(true) ? 'none' : '#000');
+        cir.setAttribute('stroke-width', sin(time / 100) * 10);
+      }
+
+      requestAnimationFrame((function () {
+        var time = Date.now();
+        return function loop() {
+          var time2 = Date.now();
+          var ago = time2 - time;
+          Tick(ago);
+          time = time2;
+          requestAnimationFrame(loop);
+        }
+      })());
+
+      var bbb = ddd.body;
+      var lct = window.location;
+      var time = 1;
+      function Tick(tick) {
+        ddd.body || (lct.href = lct.href);
+        if (bbb.childElementCount !== 1 || bbb.firstElementChild !== svg) {
+          bbb.innerHTML = '';
+          bbb.appendChild(svg);
+        }
+        boom = tw(1, boom, .3);
+        z = tw(m, z, .1);
+        zx = tw(0, zx, .1);
+        random(true, .01) && rk();
+        rs = rs.map((v, i) => tw(rm[i], v, .01));
+        var msk = rs.toString().split(random(10, parseInt)).reduce((a, b) =>
+          a += o0o0() + b
+        );
+        text.textContent = msk;
+        ddd.title = o0o0();
+        time++;
+        draw();
+      }
+
+      function rk() {
+        console[['log', 'warn', 'error'][random(3, parseInt)]](o0o0());
+        window.onmousemove({
+          clientX: random(innerWidth),
+          clientY: random(innerHeight / 4) + (m > .5 ? 0 : innerHeight / 2)
+        });
+        rm[random(3, parseInt)] = 1 / (1 + pow(E, tan(random * pi - pi / 2)));
+        var r24 = 24 * random;
+        random(true, .3) && (steps = fillArr(12 * random + 1, () => r24 + random));
+        random(true, 1 / rous) && rous++;
+      }
+
+      function o0o0() {
+        return ['🌝', '🌚', '🌕', '🌑'][random(4, parseInt)];
+      }
+
+    })()
   </script>
 </body>
 
