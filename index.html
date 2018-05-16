@@ -51,14 +51,14 @@
       var cerror = console.error;
       var fillArr = (len, val) => Array.apply(null, Array(parseInt(len))).map(() => typeof val == 'function' ? val() : val);
       var random = (() => {
-        var r = (max, min, f) => {
-          var ma = max == null ? 1 : max;
-          var mi = (typeof min == 'number') ? min : 0;
+        var r = (ma, mi, f) => {
+          var a = (typeof ma == 'number') ? (isFinite(ma) ? ma : MAX) : 1;
+          var i = (typeof mi == 'number') ? (isFinite(mi) ? mi : MIN) : 0;
           var r = Math.random();
-          r = (typeof max == 'number') ? r * (ma - mi) + mi :
-            (typeof max == 'boolean') ? r < (mi || .5) :
+          r = (typeof ma == 'number') ? r * (a - i) + i :
+            (typeof ma == 'boolean') ? r < (i || .5) == ma :
               Math.random();
-          f = f || min || max;
+          f = f || mi || ma;
           r = (typeof f == 'function') ? f(r) : r;
           return r;
         }
@@ -91,8 +91,8 @@
         var sl = step * 3 + (boom % 6);
         var pp = -t / 2 % step / 2 >> 0;
         var ll = (lig - .5) * 2 + 1.2;
-        var x = zx * innerWidth / 3;
-        var y = (1 / iz - iz) * size;
+        x = zx * innerWidth / 3;
+        y = (1 / iz - iz) * size;
         for (var i = -step * 2 - (boom % 6); i <= sl; i++) {
           var phs = i / step * pow(t, l);
           var r1 = tw(1, sin(t * l), pow(rs[0], rs[1] * rs[2] + 1));
@@ -110,7 +110,7 @@
           ny = -ny * lol - (ny - 1) / iz - iz;
           nx *= size;// * (1 + asize - z * asize);
           ny *= size;// * (1 + asize - z * asize);
-          nx = (nx + zx * innerWidth / 3);
+          nx += x;
           nx = isFinite(nx) ? nx : x;
           ny = isFinite(ny) ? ny : y;
           d += 'L' + nx + ' ' + ny;
@@ -133,12 +133,15 @@
 
       var m = 1.618;
       var z = .618;
+      var x = 0;
+      var y = 0;
       var mx = 0;
       var zx = 0;
       window.onmousemove = (e) => {
         pDef(e);
         m = 1 - (e.clientY - innerHeight / 3) / (innerHeight - innerHeight / 1.5);
-        mx = (e.clientX * 2) / innerWidth - 1;
+        mx = -1 + (e.clientX * 2) / innerWidth;
+        // mx = mx < 0 ? -1 - mx : 1 - mx;
         zx = tw(mx, zx, .02);
       }
       window.onpointermove = (e) => {
@@ -209,7 +212,7 @@
         var iz = z * 2 - 1;
         var pw = pow(sin(time), cos(time) * 10) * 5 || 1;
         cir.setAttribute('cy', (1 / iz - iz) * size + random(1, -1) * random * pw);
-        cir.setAttribute('cx', random(1, -1) * random * pw + zx * innerWidth / 3);
+        cir.setAttribute('cx', random(1, -1) * random * pw + x);
         var pw2 = pow(cos(time), sin(time / 10) * (6 + zx * 12 * log(boom + 1))) || 1;
         cir.setAttribute('r', pw2 * random + 3);
         cir.setAttribute('fill', random(true) ? 'none' : 'currentColor');
@@ -265,7 +268,7 @@
         console[['log', 'warn', 'error'][random(3, parseInt)]](o0o0(1));
         window.onmousemove({
           clientX: random(innerWidth),
-          clientY: random(innerHeight / 4) + (m > .5 ? 0 : innerHeight / 2)
+          clientY: random(innerHeight / 4) + (m > .5 ? 0 : innerHeight / 2) + (+random(true, .1) && random(innerHeight, -innerHeight))
         });
         rm[random(3, parseInt)] = 1 / (1 + pow(E, tan(random * pi - pi / 2)));
         var r24 = 24 * random;
