@@ -27,6 +27,8 @@
     (f => {
 
       var ddd = document;
+      var bbb = ddd.body;
+      var lct = window.location;
       var sin = Math.sin;
       var cos = Math.cos;
       var tan = Math.tan;
@@ -51,19 +53,19 @@
       var cerror = console.error;
       var fillArr = (len, val) => Array.apply(null, Array(parseInt(len))).map(() => typeof val == 'function' ? val() : val);
       var random = (() => {
-        var r = (ma, mi, f) => {
+        var random = (ma, mi, f) => {
           var a = (typeof ma == 'number') ? (isFinite(ma) ? ma : MAX) : 1;
           var i = (typeof mi == 'number') ? (isFinite(mi) ? mi : MIN) : 0;
           var r = Math.random();
           r = (typeof ma == 'number') ? r * (a - i) + i :
             (typeof ma == 'boolean') ? r < (i || .5) == ma :
-              Math.random();
+              r;
           f = f || mi || ma;
           r = (typeof f == 'function') ? f(r) : r;
           return r;
         }
-        r.valueOf = () => Math.random();
-        return r;
+        random.valueOf = () => Math.random();
+        return random;
       })();
 
       var svg = ddd.getElementsByTagName('svg')[0];
@@ -113,6 +115,7 @@
           nx += x;
           nx = isFinite(nx) ? nx : x;
           ny = isFinite(ny) ? ny : y;
+          nx += +(fl != null) && (fl ? r1 : -r1) * 2;
           d += 'L' + nx + ' ' + ny;
           if (i >> 0 == pp) {
             c.x = -(nx - x) * r2 * pp + x;
@@ -132,7 +135,7 @@
       }
 
       var m = 1.618;
-      var z = .618;
+      var z = isFinite(z = +lct.search.replace('?', '')) && z ? z : .618;
       var x = 0;
       var y = 0;
       var mx = 0;
@@ -174,15 +177,16 @@
       }
 
       var rous = 4 + random(4, parseInt);
+      var fl;
       function draw() {
 
         for (var i = 0; i < rous; i++) {
           if (!ps[i]) {
             ps[i] = createSvg('path');
             ps[i].setAttribute('fill', 'none');
-            ps[i].setAttribute('stroke', 'currentColor');
             ps[i].setAttribute('stroke-linecap', 'round');
             ps[i].setAttribute('stroke-linejoin', 'round');
+            ps[i].setAttribute('stroke', 'currentColor');
 
             svg.appendChild(ps[i]);
             svg.appendChild(cir);
@@ -197,17 +201,31 @@
           var tw = miax(i / rous, 0, 1);
           var l = tw;
           var d = pd(time / 3, l);
-          var path = ps[i];
-          path.id = 'p-' + i;
-          path.setAttribute('d', d.d);
-          path.setAttribute('stroke-width', max((1 - i / rous) - ll / rous, .0001));
+          var pt = ps[i];
+          pt.id = 'p-' + i;
+          pt.setAttribute('d', d.d);
+          pt.setAttribute('stroke-width', max((1 - i / rous) - ll / rous, .0001));
 
           var cc = cs[i];
           cc.setAttribute('cx', d.c.x);
           cc.setAttribute('cy', d.c.y);
           cc.setAttribute('r', d.c.r);
           cc.setAttribute('stroke-width', 1.2 - i / rous + ll * ll);
+
+          if (fl != null) {
+            var co = fl ? '#f00' : '#0ff';
+            pt.setAttribute('stroke', co);
+            cc.setAttribute('stroke', co);
+          }
+          else if (fl === null) {
+            pt.setAttribute('stroke', 'currentColor');
+            cc.setAttribute('stroke', 'currentColor');
+          }
         }
+
+        if (fl === null) fl = undefined;
+        else if (random(true, lig < .5 ? .1 : .03)) fl = null;
+        else if ((typeof fl == 'boolean') || random(true, (lig < .5 ? .005 : .03) + abs(zx / 2))) fl = !fl;
 
         var iz = z * 2 - 1;
         var pw = pow(sin(time), cos(time) * 10) * 5 || 1;
@@ -230,8 +248,6 @@
         }
       })());
 
-      var bbb = ddd.body;
-      var lct = window.location;
       var time = 1;
       function Tick(tick) {
         ddd.body || lct.reload(true);
@@ -273,7 +289,7 @@
         rm[random(3, parseInt)] = 1 / (1 + pow(E, tan(random * pi - pi / 2)));
         var r24 = 24 * random;
         random(true, .3 + d) && (steps = fillArr(12 * random + 1, () => r24 + random));
-        random(true, 1 / rous) && rous++ && random(true, .08) && lct.reload(true);
+        random(true, 1 / rous) && rous++ && random(true, .08) && (lct.search = z);
       }
 
       var o0 = ['🌝', '🌕'];
