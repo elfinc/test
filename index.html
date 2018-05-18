@@ -42,7 +42,7 @@
       var log = Math.log;
       var max = Math.max;
       var min = Math.min;
-      var miax = (v, mi, ma) => min(max(v, mi), ma);
+      var minax = (v, mi, ma) => ma > mi ? min(max(v, mi), ma) : min(max(v, ma), mi);
       var E = Math.E;
       var MAX = Number.MAX_SAFE_INTEGER;
       var MIN = Number.MIN_SAFE_INTEGER;
@@ -101,7 +101,7 @@
           var r2 = tw(1, cos(1 / l) + 1, pow(rs[1], rs[2] * rs[0] + 1));
           var r3 = tw(1, (sin(t / 12 * (l * l * 6 + 2) + pi * phs * 12 * (l * .5 + .5)) + 1) / 16, pow(rs[2], rs[0] * rs[1] + 1));
           var r4 = tw(1, 1 / phs, 1 / boom);
-          var r5 = tw((sin(t / phs / sl) + 1) * ll, 1, (cos(phs) * .5 + 1) * miax(1 - z, 0, 1));
+          var r5 = tw((sin(t / phs / sl) + 1) * ll, 1, (cos(phs) * .5 + 1) * minax(1 - z, 0, 1));
           var len = E / 10 * (1 - l * l) * r1 * r2 * r3 * r4 * r5;
           phs = tw(aw, iw, phs);
           len = tw(ah, ih, len);
@@ -135,7 +135,7 @@
       }
 
       var m = 1.618;
-      var z = isFinite(z = +lct.search.replace('?', '')) && z ? z : .618;
+      var z = isFinite(z = +lct.hash.replace('#', '') - (lct.hash = '')) && z ? z : .618;
       var x = 0;
       var y = 0;
       var mx = 0;
@@ -198,7 +198,7 @@
             svg.appendChild(cs[i]);
           }
           var ll = (lig - .5) * 2 + 1;
-          var tw = miax(i / rous, 0, 1);
+          var tw = minax(i / rous, 0, 1);
           var l = tw;
           var d = pd(time / 3, l);
           var pt = ps[i];
@@ -284,12 +284,12 @@
         console[['log', 'warn', 'error'][random(3, parseInt)]](o0o0(1));
         window.onmousemove({
           clientX: random(innerWidth),
-          clientY: random(innerHeight / 4) + (m > .5 ? 0 : innerHeight / 2) + (+random(true, .1) && random(innerHeight, -innerHeight))
+          clientY: random(innerHeight / 4) + (m > .5 ? 0 : innerHeight / 2) + (+random(true, .15 * abs(1.5 - z)) && random(innerHeight, -innerHeight))
         });
         rm[random(3, parseInt)] = 1 / (1 + pow(E, tan(random * pi - pi / 2)));
         var r24 = 24 * random;
         random(true, .3 + d) && (steps = fillArr(12 * random + 1, () => r24 + random));
-        random(true, 1 / rous) && rous++ && random(true, .08) && (lct.search = z);
+        random(true, 1 / rous) && rous++ && random(true, rous / 100) && (lct.hash = z) && lct.reload(true);
       }
 
       var o0 = ['🌝', '🌕'];
