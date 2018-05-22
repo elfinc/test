@@ -213,7 +213,7 @@
           cc.setAttribute('stroke-width', 1.2 - i / rous + ll * ll);
 
           if (fl != null) {
-            var co = fl ? '#f00' : '#0ff';
+            var co = fl ? 'hsl(' + (time + i * 6) % 360 + ',100%,50%)' : 'hsl(' + (time + i * 6 + 180) % 360 + ',100%,50%)';
             pt.setAttribute('stroke', co);
             cc.setAttribute('stroke', co);
           }
@@ -265,7 +265,7 @@
         );
         text.textContent = msk;
         ddd.title = o0o0(1);
-        time++;
+        time += tick / 20;
         draw();
       }
 
