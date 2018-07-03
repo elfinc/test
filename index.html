@@ -7,18 +7,22 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title></title>
   <style>
-    body {
+    svg {
       position: absolute;
-      height: 100%;
-      width: 100%;
+      height: 100vh;
+      width: 100vw;
+      left: 0;
+      top: 0;
       margin: 0;
       overflow: hidden;
+      z-index: 99999;
+      font-size: 12px;
     }
   </style>
 </head>
 
 <body>
-  <svg width="100%" height="100%" style="color: #000;transition: all .2s;" viewbox="-500 -500 1000 1000" version="1.1" xmlns="http://www.w3.org/2000/svg"
+  <svg style="color: #000;transition: all .2s;" viewbox="-500 -500 1000 1000" version="1.1" xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink">
     <circle cx="0" cy="0" r="3" stroke="currentColor" />
     <text x="0" y="0" style="text-anchor: middle; dominant-baseline: middle; user-select: none;">🌕</text>
@@ -204,13 +208,13 @@
           var pt = ps[i];
           pt.id = 'p-' + i;
           pt.setAttribute('d', d.d);
-          pt.setAttribute('stroke-width', max((1 - i / rous) - ll / rous, .0001));
+          pt.style.strokeWidth = max((1 - i / rous) - ll / rous, .0001) / 24 + 'em';
 
           var cc = cs[i];
           cc.setAttribute('cx', d.c.x);
           cc.setAttribute('cy', d.c.y);
           cc.setAttribute('r', d.c.r);
-          cc.setAttribute('stroke-width', 1.2 - i / rous + ll * ll);
+          cc.style.strokeWidth = (1.2 - i / rous + ll * ll) / 24 + 'em';
 
           if (fl != null) {
             var co = fl ? 'hsl(' + (time + i * 6) % 360 + ',100%,50%)' : 'hsl(' + (time + i * 6 + 180) % 360 + ',100%,50%)';
@@ -234,7 +238,7 @@
         var pw2 = pow(cos(time), sin(time / 10) * (6 + zx * 12 * log(boom + 1))) || 1;
         cir.setAttribute('r', pw2 * random + 3);
         cir.setAttribute('fill', random(true) ? 'none' : 'currentColor');
-        cir.setAttribute('stroke-width', sin(time / 100) * 10);
+        cir.style.strokeWidth = sin(time / 100) / 2.4 + 'em';
       }
 
       requestAnimationFrame((function () {
