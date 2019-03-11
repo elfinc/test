@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>morse</title>
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+		}
+
+		textarea {
+			margin: 0;
+			padding: 15px;
+			width: 50%;
+			height: 100px;
+			box-sizing: border-box;
+			float: left;
+		}
+
+		button {
+			font-size: 24px;
+		}
+	</style>
+</head>
+
+<body>
+	<textarea id="o"></textarea>
+	<textarea id="s"></textarea>
+	<br>
+	<textarea id="i"></textarea>
+	<textarea id="i2"></textarea>
+	<button id="b">===</button>
+	<br>
+</body>
+<script>
+	var m = {
+		a: '.-',
+		b: '-...',
+		c: '-.-.',
+		d: '-..',
+		e: '.',
+		f: '..-.',
+		g: '--.',
+		h: '....',
+		i: '..',
+		j: '.---',
+		k: '-.-',
+		l: '.-..',
+		m: '--',
+		n: '-.',
+		o: '---',
+		p: '.--.',
+		q: '--.-',
+		r: '.-.',
+		s: '...',
+		t: '-',
+		u: '..-',
+		v: '...-',
+		w: '.--',
+		x: '-..-',
+		y: '-.--',
+		z: '--..',
+		' ': ' ',
+	}
+	var fm = {};
+	for (var ff in m) {
+		fm[m[ff]] = ff;
+	}
+	var i = document.getElementById('i');
+	var i2 = document.getElementById('i2');
+	var o = document.getElementById('o');
+	var s = document.getElementById('s');
+	var b = document.getElementById('b');
+	i.oninput = s.oninput = function () {
+		var v = i.value || '';
+		v = v.toLowerCase();
+		// 获取标识符
+		var sss = s.value.trim();
+		var di = sss[0] || '.';
+		var da = '-';
+		for (var j = 0; j < sss.length; j++) {
+			var ss = sss[j];
+			if (ss != di) {
+				da = ss;
+				break;
+			}
+		}
+		var vv = '';
+		// 转码
+		for (var j = 0; j < v.length; j++) {
+			var vi = v[j];
+			vi = m[vi];
+			if (!vi) {
+				vv += v[j];
+				continue;
+			}
+			vi = vi.replace(/\./g, di);
+			vi = vi.replace(/\-/g, da);
+			vv += vi + ' ';
+		}
+		o.value = vv;
+		s.value = di + da + s.value.slice(2);
+	}
+
+	o.oninput = function () {
+		var v = o.value;
+		v = v.trim();
+		// 获取标识符
+		var di = v[0] || '.';
+		var da = '-';
+		for (var j = 1; j < v.length; j++) {
+			var ss = v[j];
+			if (ss != ' ' && ss != di) {
+				da = ss;
+				break;
+			}
+		}
+		var dix = new RegExp(di, 'gm');
+		var dax = new RegExp(da, 'gm');
+		var vv = '';
+		var vv2 = '';
+		v.split(/\s+/).forEach(t => {
+			var v1 = t;
+			var v2 = t;
+			v1 = v1.replace(dix, '.');
+			v1 = v1.replace(dax, '-');
+			v2 = v2.replace(dix, '-');
+			v2 = v2.replace(dax, '.');
+			var vi = fm[v1];
+			var vi2 = fm[v2];
+			if (!vi) {
+				vv += '(' + v1 + ')';
+			} else {
+				vv += vi;
+			}
+			if (!vi2) {
+				vv2 += '(' + v2 + ')';
+			} else {
+				vv2 += vi2;
+			}
+		});
+		i.value = vv;
+		i2.value = vv2;
+		s.value = di + da + s.value.slice(2);
+	}
+
+	b.onclick = function () {
+		var v = s.value.trim();
+		var di = v[0] || (v[1] == '-' ? '.' : '-');
+		var da = v[1] || (v[0] == '-' ? '.' : '-');
+		s.value = da + di + s.value.slice(2);
+		s.oninput();
+	}
+</script>
+
+</html>
