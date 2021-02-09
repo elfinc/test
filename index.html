@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title></title>
+	<style>
+		svg {
+			position: absolute;
+			height: 100vh;
+			width: 100vw;
+			left: 0;
+			top: 0;
+			margin: 0;
+			overflow: hidden;
+			z-index: 99999;
+			font-size: 12px;
+		}
+	</style>
+</head>
+
+<body>
+	<svg style="color: #000;transition: all .2s;" viewbox="-500 -500 1000 1000" version="1.1" xmlns="http://www.w3.org/2000/svg"
+	 xmlns:xlink="http://www.w3.org/1999/xlink">
+		<defs>
+			<mask id="mask">
+				<rect x="-1000" y="-1000" width="2000" height="2000" fill="#fff" />
+				<rect x="-80" y="-80" width="160" height="160" />
+			</mask>
+		</defs>
+		<g id="d"></g>
+		<rect x="-500" y="-500" width="1000" height="1000" fill="#fff" opacity="0.9" mask="url(#mask)" />
+		<rect id="rect" x="-120" y="-120" width="240" height="240" fill="none" stroke="#000" />
+	</svg>
+	<script>
+		var ddd = document;
+		var bbb = ddd.body;
+		var lct = window.location;
+		var sin = Math.sin;
+		var cos = Math.cos;
+		var tan = Math.tan;
+		var pi = Math.PI;
+		var p2 = pi * 2;
+		var p_2 = pi / 2;
+		var d2r = pi / 180;
+		var r2d = 180 / pi;
+		var abs = Math.abs;
+		var pow = Math.pow;
+		var log = Math.log;
+		var max = Math.max;
+		var min = Math.min;
+		var minax = (v, mi, ma) => ma > mi ? min(max(v, mi), ma) : min(max(v, ma), mi);
+		var E = Math.E;
+		var MAX = Number.MAX_SAFE_INTEGER;
+		var MIN = Number.MIN_SAFE_INTEGER;
+		var sqr = v => v * v;
+		var sqrt = Math.sqrt;
+		var hypot2 = Math.hypot || ((a, b) => sqrt(a * a + b * b));
+		var clog = console.log;
+		var cwarn = console.warn;
+		var cerror = console.error;
+		var fillArr = (len, val) => Array.apply(null, Array(parseInt(len))).map((v, i) => typeof val == 'function' ? val(v,
+			i) : val);
+		var random = (() => {
+			var random = (ma, mi, f) => {
+				var a = (typeof ma == 'number') ? (isFinite(ma) ? ma : MAX) : 1;
+				var i = (typeof mi == 'number') ? (isFinite(mi) ? mi : MIN) : 0;
+				var r = Math.random();
+				r = (typeof ma == 'number') ? r * (a - i) + i :
+					(typeof ma == 'boolean') ? r < (i || .5) == ma :
+					r;
+				f = f || mi || ma;
+				r = (typeof f == 'function') ? f(r) : r;
+				return r;
+			}
+			random.valueOf = () => Math.random();
+			return random;
+		})();
+
+		var svg = ddd.getElementsByTagName('svg')[0];
+		var svg_d = ddd.getElementById('d');
+		var cir = ddd.getElementsByTagNameNS('http://www.w3.org/2000/svg', 'circle')[0];
+		var text = ddd.getElementsByTagNameNS('http://www.w3.org/2000/svg', 'text')[0];
+		var createSvg = (n) => ddd.createElementNS('http://www.w3.org/2000/svg', n);
+
+		var ps = {};
+		var cs = {};
+		var size = 20;
+		var steps = fillArr(random(24, 1, x => x | 0), (v, i) => random(6, 1, x => x | 0));
+		// var steps = [0, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6];
+		console.log(steps);
+
+		function pd(t, l) {
+			var zz = tw(2 / 3, 1 / 3, z);
+			var iz = zz * 2 - 1;
+			if (iz < .000001 && iz > -.000001) iz = .000001;
+
+			var phin = -pi * iz * 3;
+			var phax = -phin;
+
+			var lein = 1 / 20;
+			var leax = 20;
+
+			var slen = steps.length;
+
+			var step = steps[l * slen >> 0];
+			if (step == null) return '';
+
+			// 将 [0-1) 映射到 [0-1]
+			l = tw(0, 1, l * (1 + 1 / slen));
+
+			var d = '';
+			x = 0;
+			y = (1 / iz) * size;
+
+			var list = [];
+
+			for (var i = -1; i <= step; i++) {
+
+				// 相位
+				var phs = t;
+				// 相位缓动
+				phs = (phs % 1 + i) / step;
+
+				// 层距离
+				var len = l;
+				// 层移动
+				len = (len + t) % 1;
+				// 层缓距离
+				// len = pow(len, 1 + 1 / zz);
+
+				// 变形限制
+				phs = tw(phin, phax, phs);
+				len = tw(lein, leax, len);
+
+				var nx = sin(phs);
+				var ny = cos(phs);
+
+				len = log(len);
+				nx = nx * len + nx / iz;
+				ny = -ny * len - (ny - 1) / iz - iz * 9;
+				nx *= size; // * (1 + asize - z * asize);
+				ny *= size; // * (1 + asize - z * asize);
+				// nx += x;
+				// nx += +(fl != null) && (fl ? r1 : -r1) * 2;
+
+				list.push({
+					x: nx,
+					y: ny
+				});
+			}
+
+			// 修剪头尾
+			list[0].x = tw(list[1].x, list[0].x, t % 1);
+			list[0].y = tw(list[1].y, list[0].y, t % 1);
+			var end = list.length - 1;
+			list[end].x = tw(list[end].x, list[end - 1].x, t % 1);
+			list[end].y = tw(list[end].y, list[end - 1].y, t % 1);
+
+			list.forEach(v => d += 'L' + (isFinite(v.x) ? v.x : 0) + ' ' + (isFinite(v.y) ? v.y : 0));
+			d = 'M' + d.slice(1);
+			return d;
+		}
+
+		function tw(a, b, t) {
+			return (b - a) * t + a;
+		}
+
+		var m = 1.618;
+		var z = isFinite(z = +lct.hash.replace('#', '') - (lct.hash = '')) && z ? z : .618;
+		var x = 0;
+		var y = 0;
+		// var mx = 0;
+		// var zx = 0;
+		window.onmousemove = (e) => {
+			pDef(e);
+			m = 1 - (e.clientY - innerHeight / 3) / (innerHeight - innerHeight / 1.5);
+			// mx = -1 + (e.clientX * 2) / innerWidth;
+			// mx = mx < 0 ? -1 - mx : 1 - mx;
+			// zx = tw(mx, zx, .02);
+		}
+
+		function pDef(e) {
+			(typeof e.preventDefault == 'function') && e.preventDefault();
+		}
+
+		var rous = steps.length;
+
+		function draw() {
+
+			for (var i = 0; i < rous; i++) {
+				if (!ps[i]) {
+					ps[i] = createSvg('path');
+					ps[i].setAttribute('fill', 'none');
+					ps[i].setAttribute('stroke-linecap', 'round');
+					ps[i].setAttribute('stroke-linejoin', 'round');
+					ps[i].setAttribute('stroke', 'currentColor');
+
+					svg_d.appendChild(ps[i]);
+
+					cs[i] = createSvg('circle');
+					cs[i].setAttribute('fill', 'none');
+					cs[i].setAttribute('stroke', 'currentColor');
+					svg_d.appendChild(cs[i]);
+				}
+				var tw = minax(i / rous, 0, 1);
+				var l = tw;
+				var d = pd(time * 0.01 * (l + 1), l);
+				var pt = ps[i];
+				pt.id = 'p-' + i;
+				pt.setAttribute('d', d);
+				pt.style.strokeWidth = max((1 - i / rous), .1) / 10 + 'em';
+
+				pt.setAttribute('stroke', 'currentColor');
+			}
+		}
+
+		requestAnimationFrame((function () {
+			var time = Date.now();
+			return function loop() {
+				var time2 = Date.now();
+				var ago = time2 - time;
+				Tick(ago);
+				time = time2;
+				requestAnimationFrame(loop);
+			}
+		})());
+
+		var time = 1;
+
+		function Tick(tick) {
+			ddd.body || lct.reload(true);
+			if (bbb.childElementCount !== 1 || bbb.firstElementChild !== svg) {
+				bbb.innerHTML = '';
+				bbb.appendChild(svg);
+			}
+			z = tw(z, m, .1);
+			z = minax(0, 1, z);
+			// zx = tw(0, zx, .1);
+			time += tick / 20;
+			draw();
+		}
+	</script>
+</body>
+
+</html>
